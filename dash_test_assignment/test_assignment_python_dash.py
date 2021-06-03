@@ -10,7 +10,7 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 df = pd.read_csv('games.csv')
-df = df[df.Year_of_Release > 2000].dropna(axis=0)
+df = df[df.Year_of_Release >= 2000].dropna(axis=0)
 df['Year_of_Release'] = list(map(int, df.Year_of_Release))
 
 app.layout = html.Div(children=[
@@ -24,7 +24,7 @@ app.layout = html.Div(children=[
 
     html.Div(children=[
         dcc.Dropdown(
-            id = 'selected_genre',
+            id='selected_genre',
             options=[
                 {'label': genre, 'value': genre} for genre in df.Genre.unique()],
             placeholder='Select a genre',
@@ -35,7 +35,7 @@ app.layout = html.Div(children=[
 
     html.Div(children=[
         dcc.Dropdown(
-            id = 'selected_rating',
+            id='selected_rating',
             options=[
                 {'label': rating, 'value': rating} for rating in df.Rating.unique()],
             placeholder='Select a rating type',
@@ -59,12 +59,13 @@ app.layout = html.Div(children=[
             id='slider',
             min=df.Year_of_Release.min(),
             max=df.Year_of_Release.max(),
-            value=[df.Year_of_Release.min(), 2008],
+            value=[df.Year_of_Release.min(), 2002],
             step=None,
             marks={str(year): str(year) for year in df.Year_of_Release.unique()}
         )
     ])
 ])
+
 
 @app.callback(
     Output('first_graph', 'figure'),
@@ -84,7 +85,8 @@ def update_first_graph(selected_genre, selected_rating, selected_year):
     # To deal with it I'd prefer to convert a string into a list item and work with lists, using df.isin() method,
     # that gets a list as an argument
     if type(selected_genre) == 'str':
-        selected_genre = selected_genre.split() # turns the string into a list element without append method
+        # turns the string into a list element without append method
+        selected_genre = selected_genre.split()
     if type(selected_rating) == 'str':
         selected_rating = selected_rating.split()
 
@@ -94,20 +96,21 @@ def update_first_graph(selected_genre, selected_rating, selected_year):
     df_fig = df_fig.groupby(['Year_of_Release', 'Platform'], as_index=False).agg({'Genre': 'count'})
 
     # Some combinations of selected_genre, selected_rating and selected_year give us no elements in games dataframe
-    if df_fig.empty == True:
+    if df_fig.empty:
         return {}
 
-    fig = px.area(df_fig, x='Year_of_Release', y='Genre', line_group='Platform', color='Platform', 
+    fig = px.area(df_fig, x='Year_of_Release', y='Genre', line_group='Platform', color='Platform',
         labels={'Genre': 'Number of games', 'Year_of_Release': 'Year of release'},
         title='Games distribution by year of release and platform')
 
     return fig
 
+
 @app.callback(
     Output('second_graph', 'figure'),
     [Input('selected_genre', 'value'),
     Input('selected_rating', 'value'),
-    Input('slider', 'value')]    
+    Input('slider', 'value')]
 )
 def update_second_graph(selected_genre, selected_rating, selected_year):
 
@@ -125,7 +128,7 @@ def update_second_graph(selected_genre, selected_rating, selected_year):
     df_fig = df_fig[(df_fig.Genre.isin(selected_genre) == True) & (df_fig.Rating.isin(selected_rating) == True)]
     df_fig = df_fig[(df_fig.Year_of_Release >= selected_year[0]) & (df_fig.Year_of_Release <= selected_year[1])]
 
-    if df_fig.empty == True:
+    if df_fig.empty:
         return {}
 
     fig = px.scatter(df_fig, x='User_Score', y='Critic_Score', color='Genre',
@@ -134,11 +137,12 @@ def update_second_graph(selected_genre, selected_rating, selected_year):
 
     return fig
 
+
 @app.callback(
     Output('output_container', 'children'),
     [Input('selected_genre', 'value'),
     Input('selected_rating', 'value'),
-    Input('slider', 'value')] 
+    Input('slider', 'value')]
 )
 def counting_games(selected_genre, selected_rating, selected_year):
 
