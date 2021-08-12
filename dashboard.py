@@ -84,15 +84,17 @@ def update_first_graph(selected_genre, selected_rating, selected_year):
     # while a few selected options give us a list.
     # To deal with it I'd prefer to convert a string into a list item and work with lists, using df.isin() method,
     # that gets a list as an argument
-    if type(selected_genre) == 'str':
+    if isinstance(selected_genre, str):
         # turns the string into a list element without append method
         selected_genre = selected_genre.split()
-    if type(selected_rating) == 'str':
+    if isinstance(selected_rating, str):
         selected_rating = selected_rating.split()
 
     df_fig = df.copy()
-    df_fig = df_fig[(df_fig.Genre.isin(selected_genre) == True) & (df_fig.Rating.isin(selected_rating) == True)]
-    df_fig = df_fig[(df_fig.Year_of_Release >= selected_year[0]) & (df_fig.Year_of_Release <= selected_year[1])]
+    df_fig = df_fig[(df_fig.Genre.isin(selected_genre)) &\
+        (df_fig.Rating.isin(selected_rating))]
+    df_fig = df_fig[(df_fig.Year_of_Release >= selected_year[0]) &\
+        (df_fig.Year_of_Release <= selected_year[1])]
     df_fig = df_fig.groupby(['Year_of_Release', 'Platform'], as_index=False).agg({'Genre': 'count'})
 
     # Some combinations of selected_genre, selected_rating and selected_year give us no elements in games dataframe
@@ -119,14 +121,16 @@ def update_second_graph(selected_genre, selected_rating, selected_year):
     if selected_genre is None or selected_rating is None:
         return {}
 
-    if type(selected_genre) == 'str':
+    if isinstance(selected_genre, str):
         selected_genre = selected_genre.split()
-    if type(selected_rating) == 'str':
+    if isinstance(selected_rating, str):
         selected_rating = selected_rating.split()
 
     df_fig = df.copy()
-    df_fig = df_fig[(df_fig.Genre.isin(selected_genre) == True) & (df_fig.Rating.isin(selected_rating) == True)]
-    df_fig = df_fig[(df_fig.Year_of_Release >= selected_year[0]) & (df_fig.Year_of_Release <= selected_year[1])]
+    df_fig = df_fig[(df_fig.Genre.isin(selected_genre)) &\
+         (df_fig.Rating.isin(selected_rating))]
+    df_fig = df_fig[(df_fig.Year_of_Release >= selected_year[0]) &\
+        (df_fig.Year_of_Release <= selected_year[1])]
 
     if df_fig.empty:
         return {}
@@ -149,16 +153,18 @@ def counting_games(selected_genre, selected_rating, selected_year):
     if selected_genre is None or selected_rating is None:
         return 'The number of selected games is 0'
 
-    if type(selected_genre) == 'str':
+    if isinstance(selected_genre, str):
         selected_genre = selected_genre.split()
-    if type(selected_rating) == 'str':
+    if isinstance(selected_rating, str):
         selected_rating = selected_rating.split()
 
     df_fig = df.copy()
-    df_fig = df_fig[(df_fig.Genre.isin(selected_genre) == True) & (df_fig.Rating.isin(selected_rating) == True)]
-    df_fig = df_fig[(df_fig.Year_of_Release >= selected_year[0]) & (df_fig.Year_of_Release <= selected_year[1])]
+    df_fig = df_fig[(df_fig.Genre.isin(selected_genre)) &\
+        (df_fig.Rating.isin(selected_rating))]
+    df_fig = df_fig[(df_fig.Year_of_Release >= selected_year[0]) &\
+        (df_fig.Year_of_Release <= selected_year[1])]
 
-    return 'The number of selected games is {}'.format(len(df_fig))
+    return f'The number of selected games is {len(df_fig)}'
 
 if __name__ == '__main__':
     app.run_server(debug=True)
